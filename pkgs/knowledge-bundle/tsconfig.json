@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"allowJs": false,
+		"forceConsistentCasingInFileNames": true,
+		"rootDir": "src"
+	},
+	"include": ["src/**/*.ts"]
+}

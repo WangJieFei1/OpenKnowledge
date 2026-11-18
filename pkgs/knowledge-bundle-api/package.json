@@ -1,0 +1,44 @@
+{
+	"name": "@open-knowledge/knowledge-bundle-api",
+	"version": "0.0.2",
+	"description": "TypeScript contracts for exposing read-only and editable knowledge bundles over RPC",
+	"keywords": [
+		"knowledge",
+		"knowledge-bundle",
+		"rpc",
+		"typescript",
+		"capnweb"
+	],
+	"homepage": "https://github.com/WangJieFei1/OpenKnowledge/tree/main/pkgs/knowledge-bundle-api#readme",
+	"bugs": {
+		"url": "https://github.com/WangJieFei1/OpenKnowledge/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/WangJieFei1/OpenKnowledge.git",
+		"directory": "pkgs/knowledge-bundle-api"
+	},
+	"license": "MIT",
+	"author": "OpenKnowledgeApp",
+	"type": "module",
+	"sideEffects": false,
+	"types": "./src/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts"
+		}
+	},
+	"files": [
+		"src/index.d.ts"
+	],
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"scripts": {
+		"check": "tsc --noEmit --project tsconfig.json"
+	},
+	"devDependencies": {
+		"typescript": "^6.0.3"
+	}
+}

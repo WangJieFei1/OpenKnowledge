@@ -1,0 +1,33 @@
+---
+title: Writing
+description: Editor views, text formatting, and saving behavior.
+---
+
+Writable Markdown documents can be edited as rich text or as Markdown source. The editor mode control is shown in the title bar unless it has been hidden in Settings. Read-only previews do not provide editing controls.
+
+| View | What it shows | Best suited for |
+| --- | --- | --- |
+| Rich text | The document body, with YAML fields in the Properties panel | Everyday writing and formatting |
+| Markdown source | The complete `.md` file | Exact Markdown or YAML editing |
+
+If YAML properties at the top of a file cannot be read, source view is opened so the original file remains available.
+
+## Formatting
+
+Rich text supports headings, lists, links, images from a URL, quotes, code, horizontal rules, tables, strikethrough, and hard line breaks.
+
+Source view is recommended for raw HTML, task lists, footnotes, math, MDX, and other specialized syntax. Unsupported syntax may be changed or removed when a document is edited in rich text.
+
+## Writing controls
+
+Formatting can be shown in a toolbar, offered through `/` commands, or provided in both places. Text selections and the context menu also offer common formatting actions.
+
+Typing `@` opens a list of other Markdown documents. Selecting one inserts a normal Markdown link.
+
+## Saving
+
+Changes are saved automatically. Ctrl+S or Command+S saves immediately. When a file is changed in another application and the current document has no pending edits, the newer version appears automatically.
+
+<Callout type="warn" title="When the file changed in two places">
+  A disk conflict is shown instead of replacing either version silently. Reload from disk opens the newer file and discards the local draft.
+</Callout>

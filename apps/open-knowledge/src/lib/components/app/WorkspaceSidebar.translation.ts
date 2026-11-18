@@ -1,0 +1,60 @@
+import { translation } from '#lib/i18n/index.js'
+
+export const workspaceSidebarTranslation = translation({
+	en: {
+		searchFiles: 'Search files',
+		filterFiles: 'Search file names and Markdown',
+		clearSearch: 'Clear search',
+		fileNameMatches: 'File names',
+		contentMatches: 'Markdown contents',
+		searching: 'Searching contents...',
+		searchFailed: 'Content search is unavailable',
+		noSearchResults: 'No matching files or contents',
+		moreSearchResults: 'More content matches are available. Narrow the search to see them.',
+		line: (lineNumber: number) => `Line ${lineNumber}`,
+		files: 'Files',
+		newDocument: 'New document',
+		newFolder: 'New folder',
+		inside: (path: string) => `Inside ${path}`,
+		workspaceRoot: 'At the workspace root',
+		create: 'Create',
+		untitledDocument: 'untitled.md',
+		untitledFolder: 'untitled',
+		renameTitle: (kind: 'directory' | 'file') =>
+			`Rename ${kind === 'directory' ? 'folder' : 'document'}`,
+		renameDescription: (name: string) => `Choose a new name for ${name}.`,
+		rename: 'Rename',
+		deleteTitle: (name: string) => `Delete ${name}?`,
+		deleteEmptyFolder: 'Only an empty folder can be deleted.',
+		deleteFile: 'This permanently removes the file from the workspace.',
+		delete: 'Delete'
+	},
+	'zh-cn': {
+		searchFiles: '搜索文件',
+		filterFiles: '搜索文件名和 Markdown 内容',
+		clearSearch: '清除搜索',
+		fileNameMatches: '文件名',
+		contentMatches: 'Markdown 内容',
+		searching: '正在搜索内容...',
+		searchFailed: '内容搜索不可用',
+		noSearchResults: '没有匹配的文件或内容',
+		moreSearchResults: '还有更多内容匹配项，请缩小搜索范围。',
+		line: (lineNumber: number) => `第 ${lineNumber} 行`,
+		files: '文件',
+		newDocument: '新建文档',
+		newFolder: '新建文件夹',
+		inside: (path: string) => `在 ${path} 中`,
+		workspaceRoot: '位于工作区根目录',
+		create: '创建',
+		untitledDocument: '未命名.md',
+		untitledFolder: '未命名',
+		renameTitle: (kind: 'directory' | 'file') =>
+			`重命名${kind === 'directory' ? '文件夹' : '文档'}`,
+		renameDescription: (name: string) => `为 ${name} 选择新名称。`,
+		rename: '重命名',
+		deleteTitle: (name: string) => `删除 ${name}？`,
+		deleteEmptyFolder: '只能删除空文件夹。',
+		deleteFile: '这会从工作区中永久移除该文件。',
+		delete: '删除'
+	}
+})

@@ -1,0 +1,15 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"lib": ["ESNext", "DOM"],
+		"types": ["node", "electron", "bun", "vite/client"],
+		"allowImportingTsExtensions": true,
+		"noEmit": true
+	},
+	"include": [
+		"./**/*.ts",
+		"../forge.config.ts",
+		"../scripts/**/*.ts",
+		"../src/lib/knowledge/api.ts"
+	]
+}

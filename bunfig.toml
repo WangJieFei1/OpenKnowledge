@@ -1,0 +1,3 @@
+[test]
+# The existing CI invokes bun test from the monorepo root. Resolve desktop source aliases there too.
+preload = ["./apps/open-knowledge/scripts/test-aliases.ts"]

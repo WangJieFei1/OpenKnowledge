@@ -1,0 +1,43 @@
+---
+title: Markdown and properties
+description: Plain Markdown, optional YAML properties, and Open Knowledge Format support.
+---
+
+Every `.md` file in a workspace can be opened. A YAML property block at the top of a file, often called frontmatter, is optional in a regular Markdown project, so an existing folder does not need to be converted before it is used.
+
+```md
+---
+title: Release checklist
+tags:
+  - operations
+---
+
+# Release checklist
+```
+
+## Properties
+
+For Open Knowledge concept documents, YAML fields appear in the Properties panel in either editor view. Common fields such as `type`, `title`, `description`, `tags`, `status`, and `sources` are suggested, while custom fields remain available.
+
+Source view can be used whenever the YAML needs to be edited directly. Existing custom fields are kept rather than replaced with a fixed set. Invalid or unusual YAML stays in source view so the structured editor does not rewrite it.
+
+## New documents
+
+A new concept starts with `type: note`, a title derived from its filename, `status: draft`, and a matching Markdown heading only when either of these conditions applies:
+
+- **Strict Open Knowledge Format** is enabled for the project.
+- The target folder is inside a detected Open Knowledge bundle. Detection starts at a folder whose own `index.md` declares a non-empty string `okf_version` and includes all descendant folders.
+
+New documents outside those scopes start as empty Markdown. Inside those scopes, reserved `index.md` and `log.md` files receive only a matching Markdown heading, without concept frontmatter. Existing files are never converted automatically.
+
+## Open Knowledge Format
+
+Open Knowledge Format bundles can be opened as regular workspaces. A versioned `index.md` enables format-aware properties, links, and new-document defaults within that folder and its descendants. Supporting `index.md` and `log.md` files remain reserved and cannot be renamed or deleted in the application. Links used by the format remain ordinary Markdown links and can be inserted from the `@` menu.
+
+The format is not required for general Markdown use. Files without `type`, files without frontmatter, and files with custom YAML fields can still be opened and edited.
+
+When **Strict Open Knowledge Format** is enabled in Project settings, every non-reserved concept file is checked for parseable YAML frontmatter and a non-empty string `type`. A visible error links to the frontmatter editor when a repair can be made safely. The check does not block editing or saving, and unknown `type` values remain valid.
+
+## Links between documents
+
+Relationships are stored as normal Markdown links. The `@` menu can create them, and Ctrl-click or Command-click opens the linked document. Relative links resolve from the current document folder. Absolute links resolve from the project root by default; Project settings can opt into operating-system absolute paths. Renaming a file does not rewrite existing links.

@@ -1,0 +1,41 @@
+---
+title: Settings
+description: Global defaults, project overrides, editor options, and format rules.
+---
+
+Global settings provide defaults for every workspace. Project settings override those defaults for the current workspace and are shared by its workspace and document windows. Shared project overrides are stored in `.open-knowledge/settings.json` and can be reset from the settings window. The system-path opt-in is stored in owner-only application data instead, so project content cannot enable it.
+
+## Appearance
+
+| Setting     | Options                                                                            | Meaning                                       |
+| ----------- | ---------------------------------------------------------------------------------- | --------------------------------------------- |
+| Color mode  | System, Light, Dark                                                                | Follows the computer theme or keeps one mode. |
+| Color theme | Indigo, Blue, Cyan, Teal, Green, Grass, Orange, Red, Crimson, Pink, Purple, Violet | Changes the accent used by controls.          |
+| Language    | English, Simplified Chinese                                                        | Changes menus, labels, and messages.          |
+
+## Writing
+
+| Setting                  | Options                            | Meaning                                            |
+| ------------------------ | ---------------------------------- | -------------------------------------------------- |
+| Writing controls         | Toolbar, Slash commands, Both      | Chooses where rich-text formatting actions appear. |
+| Editor mode in title bar | Shown, Hidden                      | Shows or hides the Rich text and Markdown buttons. |
+| Document font            | Book serif, System sans, Monospace | Changes the rich-text document font.               |
+| Text size                | 13-24 px                           | Changes the rich-text document size.               |
+
+## Sidebar
+
+The sidebar can be shown or hidden from Settings, the title bar, or Ctrl+B (Command+B on macOS). Its width can be adjusted by dragging the divider, and the chosen layout is remembered.
+
+## Project format
+
+**Strict Open Knowledge Format** is available in Project settings. It checks every non-reserved concept Markdown file for YAML frontmatter with a non-empty string `type`. Missing metadata produces a non-blocking editor error with a frontmatter repair action; opening and saving remain available.
+
+Strict mode also gives new concept documents an Open Knowledge template. Without strict mode, that template is used only below a folder whose `index.md` declares a string `okf_version`. Reserved `index.md` and `log.md` files are exempt from concept metadata and receive a heading only within those scopes.
+
+## Link paths
+
+**Resolve absolute paths from project root** is enabled by default in Project settings. A Markdown link such as `/guides/start.md` therefore resolves to `guides/start.md` inside the current project. Relative links resolve from the folder containing the current document and cannot traverse above the project root.
+
+When this setting is disabled, an absolute link opens the corresponding operating-system path instead. System-path opening is opt-in per project and is rechecked by the desktop process.
+
+If the folder at a known project path is replaced, Open Knowledge requires the folder to be selected again. Reselection clears the system-path opt-in and revokes the previous MCP grant.

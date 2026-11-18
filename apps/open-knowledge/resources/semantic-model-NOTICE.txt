@@ -1,0 +1,16 @@
+Open Knowledge local semantic search
+
+Model: paraphrase-multilingual-MiniLM-L12-v2, quantized ONNX conversion by Xenova
+Base model: https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+License: Apache-2.0 (full license in tokenizers-LICENSE.txt)
+Conversion: https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2
+Pinned conversion revision: 2c4055b12046f11709e9df2c122e59ffbdc2f900
+Weights and tokenizer hashes: electron/semantic/model.ts in the source distribution.
+Sentence-Transformers authors: Nils Reimers and Iryna Gurevych.
+Paper: https://arxiv.org/abs/2004.09813
+
+Runtime: ONNX Runtime (MIT), https://github.com/microsoft/onnxruntime
+Tokenizer: @huggingface/tokenizers (Apache-2.0), https://github.com/huggingface/tokenizers.js
+Local inference uses the original quantized weights, masked mean pooling and normalization.
+No training or fine-tuning was performed on private user documents.
+These runtimes and the model operate on-device. No inference API key is needed.

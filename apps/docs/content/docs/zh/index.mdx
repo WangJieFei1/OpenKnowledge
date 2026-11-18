@@ -1,0 +1,36 @@
+---
+title: Open Knowledge 指南
+description: Open Knowledge 中的 Markdown 文档编辑与整理。
+---
+
+Open Knowledge 是面向 Markdown 知识库的桌面编辑器。工作区由包含 `.md` 文件的文件夹构成。文档提供富文本和 Markdown 源代码两种编辑视图。同一组文件由其他 Markdown 工具读取和修改。
+
+## Markdown 文件
+
+文件以普通 Markdown 格式保存在所选文件夹中。文件顶部的 YAML 属性（frontmatter）为可选内容。同一组文件由 Git、同步服务和其他编辑器处理。
+
+## Open Knowledge Format 兼容性
+
+[Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) 作为兼容格式受到支持。该格式不构成工作区要求。现有知识包的打开不涉及转换。常用属性和格式辅助文档由编辑器提供额外支持。
+
+普通 Markdown 支持范围包括自定义元数据和未包含 frontmatter 的文件夹。
+
+## 文档结构
+
+<Cards>
+  <Card title="工作区" href="/zh/docs/workspaces">
+    基于文件夹的工作区、文件访问状态与只读预览。
+  </Card>
+  <Card title="文档编辑" href="/zh/docs/writing">
+    富文本和 Markdown 源代码视图，修改自动保存。
+  </Card>
+  <Card title="Markdown 与属性" href="/zh/docs/markdown">
+    YAML 属性与 Open Knowledge Format 兼容性。
+  </Card>
+  <Card title="设置" href="/zh/docs/settings">
+    外观、编辑器、语言和侧边栏选项。
+  </Card>
+  <Card title="AI 工具连接" href="/zh/docs/mcp">
+    本机 AI 工具的连接方式和工作区访问权限。
+  </Card>
+</Cards>

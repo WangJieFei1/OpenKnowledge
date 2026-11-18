@@ -1,0 +1,48 @@
+---
+title: Workspaces
+description: Folder-based workspaces, file browsing, previews, tabs, and windows.
+---
+
+A workspace is a folder. Opening one does not import or copy anything; its files stay where they are.
+
+## The sidebar
+
+Files from the folder and its subfolders are shown in the sidebar. Folders appear before files.
+
+The filter above the file list matches file and folder names. It does not search inside documents.
+
+## File access
+
+Each file has one of these access states:
+
+| State | Local files | Behavior |
+| --- | --- | --- |
+| Writable | Markdown files | Opens in rich text or Markdown source view and can be saved. |
+| Read-only | Supported PDF, document, presentation, spreadsheet, RTF, EPUB, and CSV files | Opens as a generated Markdown preview. The original file is not changed. |
+| Preview unavailable | Other file types | Opens a page explaining that the file type cannot be displayed or edited. The file remains available in the sidebar. |
+
+Read-only files use a lock icon in the sidebar and title bar. Files without a preview use a question-mark file icon. A read-only preview is temporary and is not written back to the source file.
+
+Some files with a supported extension still cannot be previewed, including encrypted or structurally invalid documents.
+
+Remote workspaces use the access state reported for each file by the remote bundle. A workspace-level read-only grant also makes files marked writable read-only. For older remote bundles that do not report a file state, Markdown follows the workspace grant and other file types show the preview-unavailable page.
+
+## Files and folders
+
+New documents can be created at the workspace root, inside a selected folder, or beside the current document. The `.md` extension is added automatically when it is left out.
+
+Files and folders can be renamed or deleted, but `index.md` and `log.md` cannot be renamed or deleted in the application. Only empty folders can be deleted. Moving items between folders is not currently available, and renaming a document does not update links that point to it.
+
+## Tabs and windows
+
+A document opens in a tab. Tabs can be reordered, closed together, or opened in a separate document window. Tabs can also be moved between regular windows that show the same workspace.
+
+Open tabs are kept for the current session and are not restored after the application is closed.
+
+## Other tools
+
+Because the workspace remains an ordinary folder, Git clients, sync services, backup tools, and other Markdown editors can continue to use it.
+
+<Callout title="External changes">
+  Changes made by another application appear in Open Knowledge. A clean open document is refreshed automatically; a document with local changes is protected from being silently replaced.
+</Callout>

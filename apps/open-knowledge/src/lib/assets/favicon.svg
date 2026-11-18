@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title description">
+  <title id="title">Open Knowledge</title>
+  <desc id="description">An open book with a Markdown M on its right page</desc>
+  <defs>
+    <linearGradient id="surface" x1="32" y1="16" x2="224" y2="240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/>
+      <stop offset="1" stop-color="#f3f5f7"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="48" y1="72" x2="208" y2="208" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#364255"/>
+      <stop offset="1" stop-color="#253244"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="248" height="248" rx="54" fill="url(#surface)" stroke="#e5e9ee"/>
+  <path fill="url(#ink)" d="M128 105c-9-15-21-24-37-27l-28-5c-8-1-15 5-15 13v82c0 8 6 15 14 17l32 6c13 3 25 8 34 16z"/>
+  <path d="M128 207V105c9-15 21-24 37-27l28-5c8-1 15 5 15 13v82c0 8-6 15-14 17l-32 6c-13 3-25 8-34 16Z" fill="none" stroke="url(#ink)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 171v-33l17 21 17-21v33" fill="none" stroke="url(#ink)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

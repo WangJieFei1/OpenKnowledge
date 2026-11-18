@@ -1,0 +1,10 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"allowJs": false,
+		"forceConsistentCasingInFileNames": true,
+		"rootDir": "src",
+		"types": ["bun"]
+	},
+	"include": ["src/**/*.ts"]
+}

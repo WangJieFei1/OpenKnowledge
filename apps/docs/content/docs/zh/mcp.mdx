@@ -1,0 +1,93 @@
+---
+title: AI 工具连接
+description: 支持 MCP 的本机工具连接与工作区访问权限。
+---
+
+Open Knowledge 通过模型上下文协议（MCP）与本机 AI 工具建立连接。工作区访问默认关闭。仅标记为“包含”的工作区通过连接开放访问。
+
+## 工作区权限
+
+| 设置 | 连接工具权限 |
+| --- | --- |
+| 未包含 | 无法访问该工作区。 |
+| 包含 | 浏览工作区文件；读取 Markdown 源文件，以及由受支持的本地文件转换生成的 Markdown。不支持的文件仅提供元数据。 |
+| 编辑 | 在读取基础上更新现有且可写的 Markdown 文件。转换后的文档和其他非 Markdown 文件不可修改。 |
+
+每个工作区的权限通过 MCP 设置独立管理。“编辑”以“包含”为前提。关闭“包含”时，“编辑”权限同步移除。
+
+## 连接方式
+
+连接信息的显示以至少一个已包含工作区为前提。连接信息提供以下两种形式：
+
+| 连接方式 | 适用工具 |
+| --- | --- |
+| 命令（stdio） | 支持命令配置的本机工具。 |
+| 流式 HTTP | 支持 URL 和请求头配置的本机工具。 |
+
+连接期间要求 Open Knowledge 保持运行。流式 HTTP 的访问范围限制为同一台电脑上的软件。
+
+## 离线召回
+
+财务检索可显式传入 `filters`：`entity`、`period`、`metric`、`basis`、`definition_version`。
+缺失、歧义或不匹配的元数据会在 embedding 前排除，不自动猜测期间或口径别名。
+规范表格返回 `structured_record` JSON 行记录及表头/数据行来源；数值保持字符串，不自动换算单位。
+`canonical_only` 模式要求完整维度及 `value`、`unit`、`as_of`，遇到冲突数字或扫描不完整时拒绝选值。
+它只检查已声明元数据的一致性，不证明事实真伪。`superseded` 旧值默认不召回。
+五个维度均明确且开启 `canonical_only` 时走精确元数据查找，返回 `retrieval.used_mode: metadata`，避免相似度阈值造成漏查。
+当前有严格 UTF-8 字节预算，但并非模型 token 计数；learned reranker 和几万条全库持久索引尚未实现。
+
+`knowledge_recall` 在已包含工作区的原生 Markdown 中检索，并返回紧凑片段及其工作区引用、规范路径、稳定 ID、版本、源文件哈希和原始行号或偏移量来源信息。
+
+| 模式 | 行为 |
+| --- | --- |
+| `hybrid` | 默认模式，结合关键词排序与本地语义相似度。 |
+| `keyword` | 绕过 embedding，适合精确术语和标识符。 |
+| `semantic` | 仅按语义排序，包括跨语言匹配。 |
+
+内置的 q8 ONNX `paraphrase-multilingual-MiniLM-L12-v2` 模型在本机生成 384 维 embedding，不调用 embedding API。有界的私有向量缓存会复用未变化的段落，但不存储段落原文。
+
+语义推理不可用、失败或超时时，召回会回退到关键词结果。依赖语义覆盖范围前，请检查 `retrieval.used_mode`、`retrieval.complete` 和提示信息。`max_bytes` 限制的是返回 JSON 的 UTF-8 字节数，而不是 token 数；还应检查 `serialized_bytes`、`truncated` 和 `coverage.complete`。没有结果不代表事实不存在，语义相似度也不代表事实可信度。
+
+## Codex 会话记忆
+
+Codex 会话记忆是独立设置，并且默认关闭。针对选定工作区，它只能读取“记录的工作目录等于该工作区或位于其子目录”的本机 Codex 会话。访问始终只读，并且仅开放用户与助手消息文本；工具调用、工具结果和隐藏推理不会暴露。
+
+可选工具包括：
+
+- `knowledge_list_memory_sessions`：列出符合范围要求的会话。
+- `knowledge_search_memory`：以混合、关键词或语义模式搜索受字节预算约束的历史。
+- `knowledge_get_memory_context`：读取选定结果周围的有界上下文，并可使用结果的 `content_hash` 拒绝已变化的锚点。
+
+结果会保留 `session_id`、`turn_index`、角色、可用的时间戳，以及完整消息轮次的 `content_hash`。请始终检查 `coverage.complete` 与 `coverage.warnings`，以及列表/搜索截断和上下文的 `window_complete`/`partial_text` 字段。覆盖不完整表示更早、过大、缺失、格式错误或不可读的内容可能没有被搜索或返回。会话记忆使用独立的本地向量缓存；关闭会话记忆或撤销工作区授权时，该缓存会被清除。
+
+要让客户端发现这些工具，必须先启用 MCP、包含工作区、明确启用 **Codex 会话记忆**，然后刷新客户端工具列表或重新连接。
+
+此集成为受 [Trellis](https://github.com/mindfold-ai/trellis) 所展示的一般理念启发的洁净室设计。Open Knowledge 不捆绑或复制 Trellis 的 AGPL 代码。
+
+## 工作流提示词
+
+- `research_brief`：接收 `workspace_ref` 和 `question`，整理数据分析问题、证据、不确定性和引用。
+- `quant_research_review`：接收 `workspace_ref` 和 `hypothesis`，审查量化研究的假设、数据质量、信息泄漏、成本、验证和局限；不会下单，也不执行实时交易。
+- `consulting_handoff`：接收 `workspace_ref` 和 `engagement`，为咨询交接整理有引用的发现、决策、待解决问题和后续步骤。
+
+这些提示词只是模板，不会增加权限。它们只能使用已授权的工作区和可选会话记忆。
+
+## 操作范围
+
+已包含的工作区支持列出文件，每个文件包含 `document_access`：`writable`、`readonly` 或 `not_supported`。Markdown 源文件会直接返回；Anydoc 支持的本地 PDF、办公文档、演示文稿、电子表格、RTF、EPUB 和 CSV 文件会转换为只读 Markdown，且不会修改源文件。不支持的文件仅提供元数据，不能作为文档打开。
+
+`knowledge_search` 使用 WASM ripgrep，在打开文档前从原生 Markdown 源文件中查找有数量限制的匹配行。它支持正则表达式或字面文本、大小写控制、整词匹配、目录范围和可选排除 glob。转换文档和不支持文件的源字节不会被搜索。搜索直接在已包含的工作区中运行，不创建持久项目索引，并排除 Open Knowledge 内部数据、Git 数据、依赖目录、符号链接和已忽略文件。
+
+`knowledge_get_excerpt` 读取有界的原始行范围。`knowledge_recall` 按关键词、本地语义或两者结合的方式检索有界的原生 Markdown 段落。两者都会保留来源信息，并明确披露截断和覆盖范围限制。
+
+`knowledge_get_document` 将 Markdown 作为工具文本返回，并单独提供源文件的结构化元数据。`representation` 为 `source_markdown` 或 `converted_markdown`，`markdown_byte_length` 是返回 Markdown 的 UTF-8 字节数。`byte_length` 和 `content_hash` 始终描述原始源文件字节；`content_hash` 是源文件的小写十六进制 SHA-256，而不是转换结果的哈希。
+
+启用“编辑”后，可更新现有且可写的 `.md` 文件。局部更新使用唯一匹配的原文锚点，并校验版本与源文件内容哈希；每次补丁无需回传整篇文档。局部补丁和整篇替换均仅适用于 Markdown。
+
+工作区文件的创建、删除、重命名和移动操作不通过连接提供。
+
+MCP 仅接受规范的项目相对路径。绝对路径、父目录遍历、符号链接或硬链接文档、嵌套文件系统设备，以及 Windows 设备路径或备用数据流路径都会在读取内容前被拒绝。替换工作区文件夹后必须明确重新选择，并且会撤销之前的 MCP 授权。
+
+<Callout type="warn" title="连接信息">
+  连接信息用于授予所有已包含工作区的访问权限。共享范围限制为同一台电脑上的可信工具。连接信息重新生成后，现有连接将被断开。
+</Callout>

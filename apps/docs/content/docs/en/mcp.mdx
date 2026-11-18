@@ -1,0 +1,96 @@
+---
+title: AI connections
+description: Workspace access for local tools that support MCP.
+---
+
+Open Knowledge can connect local AI tools through the Model Context Protocol (MCP). Nothing is shared until a workspace is included.
+
+## Workspace access
+
+| Setting | What the connected tool can do |
+| --- | --- |
+| Not included | The workspace is not available. |
+| Include | Browse workspace files. Read source Markdown and converted Markdown from supported local files; unsupported files expose metadata only. |
+| Edit | Update existing writable Markdown files as well as read available documents. Converted and other non-Markdown files cannot be changed. |
+
+Access is set separately for every workspace in MCP Settings. Edit can only be enabled after Include. Removing Include also removes Edit.
+
+## Connection methods
+
+After at least one workspace has been included, connection details can be revealed and copied in either form:
+
+| Connection | Suitable for |
+| --- | --- |
+| Command (stdio) | Local tools that accept a command configuration. |
+| Streamable HTTP | Local tools that accept a URL and request header. |
+
+Open Knowledge must remain running while a tool is connected. Streamable HTTP is available only to software running on the same computer.
+
+## Offline recall
+
+Financial recall accepts explicit `filters` for `entity`, `period`, `metric`, `basis`, and
+`definition_version`. Missing, ambiguous or mismatched metadata is rejected before embedding.
+Well-formed tables return `structured_record` JSON rows with header/data-row provenance, preserving
+string values without unit conversion. `canonical_only` requires complete dimensions plus `value`,
+`unit`, and `as_of`; conflicting values or incomplete source coverage cause abstention. This checks
+declared-metadata consistency, not factual truth. Superseded records are excluded by default.
+With all five dimensions explicitly filtered and `canonical_only` enabled, exact lookup reports
+`retrieval.used_mode: metadata`, so a similarity threshold cannot hide a fully identified record.
+The hard output limit is UTF-8 bytes, not model tokens. A learned reranker and a persistent index for
+tens of thousands of records are not implemented yet.
+
+`knowledge_recall` searches native Markdown in an included workspace and returns compact excerpts with their workspace reference, canonical path, stable ID, revision, source hash, and original line or offset provenance.
+
+| Mode | Behavior |
+| --- | --- |
+| `hybrid` | Default. Combines keyword ranking with local semantic similarity. |
+| `keyword` | Bypasses embeddings for exact terms and identifiers. |
+| `semantic` | Ranks by meaning only, including cross-language matches. |
+
+The bundled q8 ONNX `paraphrase-multilingual-MiniLM-L12-v2` model creates 384-dimensional embeddings on this device. It does not call an embedding API. A bounded private vector cache reuses unchanged passages without storing their source text.
+
+If semantic inference is unavailable, fails, or times out, recall falls back to keyword results. Check `retrieval.used_mode`, `retrieval.complete`, and its notice before relying on semantic coverage. `max_bytes` is a UTF-8 JSON-output budget, not a token budget; also check `serialized_bytes`, `truncated`, and `coverage.complete`. Missing results do not prove that a fact is absent, and similarity is not factual confidence.
+
+## Codex session memory
+
+Codex session memory is a separate setting and is off by default. For a selected workspace, it can read only local Codex sessions whose recorded working directory is that workspace or a descendant. Access is read-only and includes only user and assistant message text. Tool calls, tool results, and hidden reasoning are not exposed.
+
+The optional tools are:
+
+- `knowledge_list_memory_sessions` lists eligible sessions.
+- `knowledge_search_memory` searches byte-budgeted history in hybrid, keyword, or semantic mode.
+- `knowledge_get_memory_context` reads bounded surrounding context and can reject a changed anchor with its `content_hash`.
+
+Results preserve `session_id`, `turn_index`, role, timestamp when available, and the full turn's `content_hash`. Always inspect `coverage.complete` and `coverage.warnings`, plus list/search truncation and context `window_complete`/`partial_text` fields. Incomplete coverage means that older, oversized, missing, malformed, or unreadable content may not have been searched or returned. Session memory has a separate local vector cache, which is cleared when memory is disabled or the workspace grant is revoked.
+
+To expose these tools, enable MCP, include the workspace, explicitly enable **Codex session memory**, and then refresh the client's tools or reconnect it.
+
+This integration is a clean-room design informed by general concepts demonstrated by [Trellis](https://github.com/mindfold-ai/trellis). Open Knowledge does not bundle or copy Trellis AGPL code.
+
+## Workflow prompts
+
+- `research_brief` takes `workspace_ref` and `question` to organize a data-analysis question, evidence, uncertainty, and citations.
+- `quant_research_review` takes `workspace_ref` and `hypothesis` to review quantitative research assumptions, data quality, leakage, costs, validation, and limitations. It does not place trades or perform live execution.
+- `consulting_handoff` takes `workspace_ref` and `engagement` to prepare cited findings, decisions, open questions, and next steps.
+
+These prompts are templates, not additional permissions. They can use only the workspace and optional session memory already authorized.
+
+## Available actions
+
+Included workspaces can be listed with a `document_access` value for every file: `writable`, `readonly`, or `not_supported`. Native Markdown is returned directly. Local PDF, office document, presentation, spreadsheet, RTF, EPUB, and CSV files supported by Anydoc are returned as read-only converted Markdown without changing the source file. Unsupported files expose metadata only and cannot be opened as documents.
+
+`knowledge_search` uses WASM ripgrep to find bounded matching lines in native Markdown source before documents are opened. It supports regular expressions or literal text, case controls, whole-word matching, a directory scope, and optional exclusion globs. Converted and unsupported source bytes are not searched. Search runs directly against the included workspace without creating a persistent project index, and it excludes internal Open Knowledge data, Git data, dependencies, symbolic links, and ignored files.
+
+`knowledge_get_excerpt` reads a bounded original line range. `knowledge_recall` searches bounded native-Markdown passages by keywords, local meaning, or both. Both retain source provenance and disclose truncation and coverage limits.
+
+`knowledge_get_document` returns Markdown as tool text and source-file details as structured metadata. `representation` is `source_markdown` or `converted_markdown`, while `markdown_byte_length` is the UTF-8 size of the returned Markdown. `byte_length` and `content_hash` always describe the original source bytes; `content_hash` is their lowercase SHA-256 hash, not a hash of converted Markdown.
+
+When Edit is enabled, existing writable `.md` files can be updated. Targeted updates use exact, uniquely matched text anchors plus revision and source content-hash checks; the full document is not sent back for each patch. Both targeted patches and full replacements remain Markdown-only.
+
+Connected tools cannot create, delete, rename, or move workspace files.
+
+MCP accepts only canonical project-relative paths. Absolute paths, parent traversal, symbolic or hard-linked documents, nested filesystem devices, and Windows device or alternate-stream paths are rejected before content access. Replacing a workspace folder requires explicit reselection and revokes its previous MCP grant.
+
+<Callout type="warn" title="Private connection details">
+  Connection details grant access to every included workspace. They should be shared only with trusted tools on the same computer. Regenerating the connection details disconnects tools that are already connected.
+</Callout>

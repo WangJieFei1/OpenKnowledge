@@ -1,0 +1,43 @@
+---
+title: Markdown 与属性
+description: 普通 Markdown、可选 YAML 属性和 Open Knowledge Format 支持。
+---
+
+工作区中的 `.md` 文件均可打开。在普通 Markdown 项目中，文件顶部的 YAML 属性区（frontmatter）为可选内容，因此现有文件夹无需转换即可使用。
+
+```md
+---
+title: 发布检查清单
+tags:
+  - operations
+---
+
+# 发布检查清单
+```
+
+## 属性
+
+对于 Open Knowledge 概念文档，YAML 字段会在两种编辑视图的属性面板中显示。应用会推荐 `type`、`title`、`description`、`tags`、`status` 和 `sources` 等常用字段，同时保留自定义字段。
+
+YAML 可在源码视图中直接编辑。无效或结构特殊的 YAML 会保留在源码视图中，避免结构化编辑器将其改写。
+
+## 新文档
+
+只有满足以下任一条件时，新建概念文档才会包含 `type: note`、根据文件名生成的标题、`status: draft` 和对应的 Markdown 一级标题：
+
+- 此项目启用了**严格 Open Knowledge Format**。
+- 目标文件夹位于已检测到的 Open Knowledge 知识包中。如果某个文件夹自身的 `index.md` 声明了非空字符串 `okf_version`，该文件夹及其所有后代文件夹会被识别为知识包范围。
+
+上述范围之外的新文档为空白 Markdown。在这些范围内，保留文件 `index.md` 和 `log.md` 只会获得对应的 Markdown 标题，不会获得概念 frontmatter。应用不会自动转换现有文件。
+
+## Open Knowledge Format
+
+Open Knowledge Format 知识包可作为普通工作区打开。带版本声明的 `index.md` 会在其所在文件夹及后代文件夹中启用格式属性、链接辅助和新文档默认内容。辅助用的 `index.md` 和 `log.md` 仍是保留文件，在应用中不可重命名或删除。该格式使用的链接以普通 Markdown 链接形式保存，并可通过 `@` 菜单插入。
+
+普通 Markdown 支持范围包括缺少 `type` 的文件、未包含 frontmatter 的文件，以及包含自定义 YAML 字段的文件。
+
+在项目设置中启用**严格 Open Knowledge Format**后，应用会检查每个非保留概念文件是否包含可解析的 YAML frontmatter 和非空字符串 `type`。如果可以安全修复，错误提示会提供打开 frontmatter 编辑器的按钮。该检查不会阻止编辑或保存，未知的 `type` 值仍然有效。
+
+## 文档链接
+
+文档之间的关系以普通 Markdown 链接保存。链接插入由 `@` 菜单提供。Ctrl 或 Command 点击用于打开目标文档。相对链接从当前文档所在文件夹解析；绝对链接默认从项目根目录解析，也可在项目设置中改为使用操作系统绝对路径。文件重命名不触发已有链接重写。

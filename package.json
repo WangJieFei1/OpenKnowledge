@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "bun run --workspaces --if-present check",
+    "test": "bun run --workspaces --if-present test"
+  },
+  "workspaces": [
+    "apps/*",
+    "pkgs/*"
+  ]
+}

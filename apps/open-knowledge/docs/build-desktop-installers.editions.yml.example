@@ -1,0 +1,191 @@
+name: Build desktop installers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-installers-${{ github.ref }}-${{ github.actor }}
+  cancel-in-progress: true
+
+env:
+  APP_DIR: apps/open-knowledge
+  BUN_VERSION: 1.4.0
+  NODE_VERSION: 24.18.0
+
+jobs:
+  authorize:
+    name: Authorize repository administrator
+    runs-on: ubuntu-slim
+    timeout-minutes: 2
+    steps:
+      - name: Require administrator permission
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: context.actor,
+            });
+
+            if (data.permission !== 'admin') {
+              core.setFailed(
+                `@${context.actor} has '${data.permission}' permission; administrator permission is required.`,
+              );
+            }
+
+  validate:
+    name: Validate application
+    needs: authorize
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: >-
+          bun install --frozen-lockfile
+          --filter open-knowledge
+          --filter '@open-knowledge/knowledge-bundle*'
+
+      - name: Check types
+        run: >-
+          bun run
+          --filter open-knowledge
+          --filter '@open-knowledge/knowledge-bundle*'
+          --if-present check
+
+      - name: Run tests
+        run: >-
+          bun run
+          --filter open-knowledge
+          --filter '@open-knowledge/knowledge-bundle*'
+          --if-present test
+
+  package:
+    name: Package ${{ matrix.edition }} / ${{ matrix.target.name }}
+    needs: validate
+    runs-on: ${{ matrix.target.runner }}
+    timeout-minutes: 45
+    env:
+      OPEN_KNOWLEDGE_EDITION: ${{ matrix.edition }}
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [general, codex]
+        target:
+          - name: Linux x64 AppImage
+            runner: ubuntu-24.04
+            platform: linux
+            arch: x64
+            maker: AppImage
+            artifact_suffix: linux-x64-appimage
+            installer_glob: make/AppImage/x64/*.AppImage
+          - name: Linux arm64 AppImage
+            runner: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+            maker: AppImage
+            artifact_suffix: linux-arm64-appimage
+            installer_glob: make/AppImage/arm64/*.AppImage
+          - name: Windows x64 installer
+            runner: windows-2025
+            platform: win32
+            arch: x64
+            maker: squirrel
+            artifact_suffix: windows-x64-installer
+            installer_glob: make/squirrel.windows/x64/*.exe
+          - name: macOS arm64 DMG
+            runner: macos-15
+            platform: darwin
+            arch: arm64
+            maker: dmg
+            artifact_suffix: macos-arm64-dmg
+            installer_glob: make/*.dmg
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Bootstrap node-gyp for macOS
+        if: runner.os == 'macOS'
+        run: |
+          npm install --global --ignore-scripts --no-audit --no-fund node-gyp@12.4.0
+          echo "npm_config_node_gyp=$(command -v node-gyp)" >> "$GITHUB_ENV"
+          node-gyp --version
+
+      - name: Install dependencies
+        run: >-
+          bun install --frozen-lockfile
+          --filter open-knowledge
+          --filter '@open-knowledge/knowledge-bundle*'
+
+      - name: Build application assets
+        run: bun run build
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Install AppImage tools
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          if ! command -v mksquashfs >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends squashfs-tools
+          fi
+
+      - name: Make ${{ matrix.edition }} / ${{ matrix.target.name }}
+        run: >-
+          node node_modules/@electron-forge/cli/dist/electron-forge.js make
+          --platform=${{ matrix.target.platform }}
+          --arch=${{ matrix.target.arch }}
+          --targets=${{ matrix.target.maker }}
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Verify ${{ matrix.edition }} / ${{ matrix.target.name }}
+        shell: bash
+        env:
+          INSTALLER_GLOB: ${{ env.APP_DIR }}/out/${{ matrix.edition }}/${{ matrix.target.installer_glob }}
+        run: |
+          shopt -s nullglob
+          installers=( $INSTALLER_GLOB )
+          if (( ${#installers[@]} == 0 )); then
+            echo "No installer matched $INSTALLER_GLOB" >&2
+            exit 1
+          fi
+          ls -lh "${installers[@]}"
+
+      - name: Upload ${{ matrix.edition }} / ${{ matrix.target.name }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: open-knowledge-${{ matrix.edition }}-${{ matrix.target.artifact_suffix }}
+          path: ${{ env.APP_DIR }}/out/${{ matrix.edition }}/${{ matrix.target.installer_glob }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
