@@ -661,11 +661,14 @@ describe('knowledge bundle MCP server', () => {
 				'knowledge_patch_document',
 				'knowledge_update_document',
 				'knowledge_get_excerpt',
+				'knowledge_get_excerpts',
 				'knowledge_recall'
 			])
 			for (const tool of listed.tools) {
 				expect(tool.inputSchema).toMatchObject({ type: 'object' })
-				if (['knowledge_get_excerpt', 'knowledge_recall'].includes(tool.name)) {
+				if (
+					['knowledge_get_excerpt', 'knowledge_get_excerpts', 'knowledge_recall'].includes(tool.name)
+				) {
 					expect(tool.outputSchema).toBeUndefined()
 				} else {
 					expect(tool.outputSchema).toMatchObject({ type: 'object' })

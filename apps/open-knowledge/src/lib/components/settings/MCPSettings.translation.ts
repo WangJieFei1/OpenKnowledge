@@ -3,19 +3,19 @@ import { translation } from '#lib/i18n/index.js'
 const english = {
 	generalEditionTitle: 'General edition',
 	generalEditionDescription:
-		'Client-neutral knowledge retrieval for research, analysis and consulting. Connect any compatible local MCP client with STDIO or HTTP. This edition does not read AI-client conversation history.',
+		'Connect a local MCP client using a command or HTTP. The General edition does not read conversation history.',
 	codexEditionTitle: 'Codex-optimized edition',
 	codexEditionDescription:
 		'The same open MCP knowledge tools, plus ready-to-copy Codex setup and optional project-scoped Codex session memory. Memory stays off until you enable it; other compatible MCP clients are still supported.',
 	eyebrow: 'LOCAL MCP',
 	overviewTitle: 'One connection, explicit workspace access',
 	overviewDescription: 'Choose which knowledge workspaces local MCP clients can read or edit.',
-	semanticTitle: 'Local semantic search for connected AI',
+	semanticTitle: 'Search by meaning',
 	semanticDescription:
-		'Recall searches by meaning and keywords, including across Chinese and English. The bundled model runs on this device with no embedding API charge. The first search builds a private cache; later searches reuse unchanged passages. Your AI service still charges for the excerpts it reads.',
+		'Search by keyword or meaning, including across languages. Search runs on this device and reuses unchanged passages. A connected tool may count returned text toward its usage.',
 	memoryTitle: 'Codex session memory',
 	memoryDescription:
-		'Allow authorized MCP clients to search user/assistant history for included local projects and their subfolders. Retrieval runs locally; returned excerpts are shared with the client and may be sent to its AI service. Other projects are excluded. Off by default; reconnect clients after changing.',
+		'Allow authorized MCP clients to search user/assistant history for included local projects and their subfolders. Retrieval runs locally; returned excerpts are shared with the client and may be sent to its provider. Other projects are excluded. Off by default; reconnect clients after changing.',
 	workflowsTitle: 'Research workflows',
 	workflowsDescription:
 		'Choose a prompt in your connected MCP client. Each workflow checks sources, dates, assumptions and missing evidence.',

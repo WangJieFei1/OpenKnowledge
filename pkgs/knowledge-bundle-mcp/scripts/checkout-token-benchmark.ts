@@ -135,7 +135,44 @@ async function benchmark(items: typeof fullSources) {
 			assert.ok(result.serialized_bytes <= maxBytes)
 			bounded.push(JSON.stringify(excerptCall), excerptText.text)
 		}
-		return { pasted, fullMcp, bounded }
+		const batchCall = {
+			name: 'knowledge_get_excerpts',
+			arguments: {
+				workspace_ref: workspaceRef,
+				ranges: items.map(({ file, start, end }) => ({
+					path: file.path,
+					start_line: start,
+					end_line: end
+				})),
+				max_bytes: maxBytes
+			}
+		}
+		const batch = await client.callTool(batchCall)
+		assert.equal(batch.isError, undefined)
+		assert.equal(batch.structuredContent, undefined)
+		assert.equal(batch.content.length, 1)
+		const batchText = batch.content[0]
+		assert.equal(batchText.type, 'text')
+		const result = JSON.parse(batchText.text)
+		assert.equal(result.workspace_ref, workspaceRef)
+		assert.equal(result.source_content_is_untrusted, true)
+		assert.equal(result.serialized_bytes, Buffer.byteLength(batchText.text))
+		assert.ok(result.serialized_bytes <= maxBytes)
+		assert.deepEqual(
+			result.excerpts,
+			items.map(({ file, start, end, evidence }) => ({
+				path: file.path,
+				start_line: start,
+				end_line: end,
+				content_hash: file.contentHash,
+				text: evidence
+			}))
+		)
+		const batched = [question, JSON.stringify(batchCall), batchText.text]
+		const definition = (await client.listTools()).tools.find(({ name }) => name === batchCall.name)
+		assert.ok(definition)
+		const batchedWithToolDefinition = [...batched, JSON.stringify(definition)]
+		return { pasted, fullMcp, bounded, batched, batchedWithToolDefinition }
 	} finally {
 		await client.close()
 		await server.close()

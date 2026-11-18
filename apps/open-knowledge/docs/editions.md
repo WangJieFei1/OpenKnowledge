@@ -77,7 +77,7 @@ contain an enabled flag.
 
 Every authorized MCP client can access the exposed tools; the Codex edition does not restrict them
 to a client named Codex. Embeddings and history reading run locally, but a client can send returned
-excerpts to its AI service. Grant access only to clients you trust.
+excerpts to its own provider. Grant access only to clients you trust.
 
 Both editions expose standard MCP stdio/HTTP connection details. Codex additionally provides a
 TOML copy tab for its stdio connection, without embedding an HTTP bearer token. Open Knowledge does

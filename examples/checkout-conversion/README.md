@@ -26,18 +26,26 @@ Each variant counts the same question once. The benchmark then adds one of the f
 - **Full MCP:** four real `knowledge_get_document` calls. This counts each tool name and argument object, the returned Markdown, and its structured metadata.
 - **Bounded:** four real `knowledge_get_excerpt` calls, including each tool name and argument object and all of the compact JSON returned by the server. Each response retains the source path, line range and content hash. The script checks that the expected text is present verbatim and was not truncated.
 
+- **One batch:** one `knowledge_get_excerpts` call for the same ranges. The script counts the
+  arguments and all of the returned JSON, and checks every path, line range, hash, and passage.
+
 The excerpt ranges are selected in advance. This measures the token cost of handing known evidence to a model, not the cost or quality of finding that evidence. The `evidenceOnlyNotes` run repeats the comparison with the same four files reduced to just their relevant passages, so the overhead of MCP is visible for short notes.
 
 Counts sum `o200k_base` tokens across the supplied text parts. They do not include system messages, tool schemas, discovery calls, message framing, or the model's answer. Actual model usage depends on the tokenizer and how the client forwards tool metadata. The `max_bytes` parameter limits UTF-8 response bytes, not tokens.
 
 ## Measured results
 
-| Notes supplied | Paste Markdown | Full-file MCP | Bounded excerpt MCP |
-| --- | ---: | ---: | ---: |
-| Four complete notes | 2,134 | 2,718 | 1,509 |
-| The same notes trimmed to the required evidence | 795 | 1,365 | 1,501 |
+| Notes supplied | Paste Markdown | Full-file MCP | Four single excerpts | One batch |
+| --- | ---: | ---: | ---: | ---: |
+| Four complete notes | 2,134 | 2,718 | 1,509 | 1,169 |
+| The same notes trimmed to the required evidence | 795 | 1,365 | 1,501 | 1,161 |
 
-With the complete notes, excerpts used **29.3% fewer tokens than pasting** and **44.5% fewer than full-file MCP**. With evidence-only notes, pasting was cheaper. Call arguments and source metadata cost tokens, so fetching excerpts is most useful when it lets you leave enough unrelated text behind.
+One batch used **22.5% fewer tokens** than four single excerpt calls and **45.2% fewer** than
+pasting all four complete files. Pasting is still cheaper if the notes are already short.
+The batch tool definition itself is **328 tokens** where a client includes it. The batch count is
+then 1,497 for complete notes, before any other tool definitions, discovery, or message framing.
+For one short passage, use the single-excerpt tool or paste the passage if you already have it.
+Use the batch when you know several line ranges from one workspace.
 
 ## Reproduce the SQL result
 

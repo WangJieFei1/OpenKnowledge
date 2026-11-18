@@ -1,6 +1,6 @@
 # MCP Connection
 
-Open Knowledge exposes explicitly included local workspaces to trusted AI tools through one application-wide Model Context Protocol (MCP) connection. Access is disabled by default and read-only unless editing is enabled for a workspace.
+Connect compatible local tools through the Model Context Protocol (MCP). No folders are shared by default. Once shared, a folder is read-only unless you enable editing for it.
 
 **Open Knowledge General** and **Open Knowledge Codex** both support standard
 MCP clients, local multilingual embeddings, hybrid recall and research prompts. General has no Codex
@@ -46,6 +46,15 @@ and original line or offset provenance. `max_bytes` bounds the returned UTF-8 JS
 Also inspect `serialized_bytes`, `truncated`, `coverage.complete`, and excluded-document counts. A
 missing result is not proof that a fact is absent, and semantic similarity is not factual confidence.
 
+## Read several citations at once
+
+Use `knowledge_get_excerpts` when you already have several line ranges from one workspace.
+Pass one `workspace_ref`, up to eight Markdown ranges, and a single `max_bytes` budget.
+Each range has a path and inclusive start and end lines. Pass the earlier `expected_content_hash`
+when available to check that the source has not changed. The reply includes a path, lines, hash,
+and text for each range. If any range fails or the batch exceeds the byte budget, no excerpts
+are returned. Use `knowledge_get_excerpt` for one range or a converted document.
+
 ## Codex Session Memory (Codex Edition Only)
 
 General omits the Codex history reader from its main bundle and rejects memory enable requests,
@@ -60,7 +69,7 @@ not exposed.
 
 All clients authorized for the workspace can access enabled memory tools, not just Codex. History
 reading and embeddings run locally, but the receiving client may forward returned excerpts to its
-AI service. Only enable this for clients you trust.
+provider. Only enable this for clients you trust.
 
 The memory tools are:
 

@@ -1,14 +1,14 @@
 # Open Knowledge
 
-**Your knowledge should outlive your tools.**
+Open Knowledge is a desktop app for writing and searching Markdown files. Open a folder to get started. Files stay where they are, so you can keep using your editor, Git repository, or backup.
 
-Open Knowledge is an open-source, local-first desktop workspace for managing knowledge and project memory. Give it a folder of Markdown files and it becomes a place to write, organize research, keep track of decisions, and find the passage you need months later. The files stay yours: open them in any editor, back them up however you like, or take the whole folder with you.
+I use it for everyday data analysis: I keep dataset notes, SQL, metric definitions, and results together so I can check where a number came from.
 
-## Built for day-to-day data analysis
+## Getting started
 
-I use Open Knowledge in my day-to-day data analysis. It is where I keep dataset notes, SQL snippets, metric definitions, assumptions, and findings so I can see how I got an answer and pick up the work later.
+Open Knowledge currently ships as source code; there are no prebuilt installers yet. See [Build from source](#build-from-source), [macOS first launch](apps/open-knowledge/docs/macos.md#first-launch-and-folder-access), or [Windows setup](apps/open-knowledge/docs/windows.md).
 
-When I need to revisit a number, I can search for the passage that explains it instead of opening a dozen files. For structured notes, [metadata filters](apps/open-knowledge/docs/retrieval-quality.md) can narrow results by entity, reporting period, or metric definition. Open Knowledge keeps the context around the analysis; I still run queries and calculations in my usual tools.
+In the app, click **Open folder** and pick a Markdown folder. Writing and search work without an account or an MCP connection. To try the checkout example, open `examples/checkout-conversion/workspace`.
 
 ## Example: explain a change in checkout conversion
 
@@ -21,19 +21,23 @@ Here is a synthetic example of how I connect four Markdown notes in one workspac
 | [Metric definition](examples/checkout-conversion/workspace/metric.md) | **Checkout conversion = paid eligible checkout sessions ÷ eligible checkout sessions.** Keep the denominator, exclusions, and reporting window explicit. |
 | [Analysis conclusion](examples/checkout-conversion/workspace/conclusion.md) | **420 / 10,000 (4.2%)** versus **350 / 10,000 (3.5%)** the previous week: **up 0.7 percentage points**. The note links back to the SQL and the definition. The increase does not establish why conversion changed. |
 
-I run the SQL in my usual analytics environment and save the result in the conclusion note. Later, when I ask “Did conversion improve, and are the two weeks comparable?”, I can send the relevant line ranges from those four notes through MCP instead of pasting four complete notes. The cited lines show the inputs, the denominator, and the result. Open Knowledge retrieves the evidence; it does not execute the SQL or infer causality.
+I run the SQL in my usual analytics environment and save the result in the conclusion note. Later, when I ask “Did conversion improve, and are the two weeks comparable?”, I can send the relevant line ranges from those four notes through MCP instead of pasting four complete notes. The cited lines show the inputs, the denominator, and the result. The app retrieves the notes; the SQL runs in the analytics environment.
 
-**Does it use fewer tokens?** For the same question and four notes, pasting the full files used **2,134 tokens**; asking MCP for four verified excerpts used **1,509** (**29.3% fewer**), including the tool calls and their returned JSON. When the notes already contained only the needed evidence, pasting was cheaper: **795 tokens** versus **1,501** over MCP. These are local `o200k_base` counts for this example, not a prediction of total chat usage. [Reproduce the benchmark](examples/checkout-conversion/README.md#reproduce-the-count).
+**Token count for this example:** One MCP call for the four cited passages used **1,169 tokens**.
+Four separate excerpt calls used 1,509, and pasting the full notes used 2,134. If the notes
+already contain only the needed passages, pasting is cheaper (795 versus 1,161). These are local
+`o200k_base` counts of the question, tool arguments, and results—not whole-chat usage.
+[Reproduce the benchmark](examples/checkout-conversion/README.md#reproduce-the-count).
 
-## Find the evidence, not just the filename
+## Editing and search
 
-- **Manage a knowledge base without a proprietary format.** Edit notes in rich-text or Markdown source mode, search across a workspace, and open supported non-Markdown documents in a read-only view.
-- **Find what you meant, not just what you typed.** Through the Model Context Protocol (MCP), connected tools can search by keyword, meaning, or both. Multilingual semantic search runs on-device, and results point back to the source file and line range.
-- **Pick up where a project left off.** The optional Codex edition can search local conversations from a selected project. That makes past decisions and context retrievable without turning your entire conversation history into a shared workspace.
+- Edit Markdown as rich text or source. Open supported documents in a read-only preview.
+- Search across a folder in the app. For keyword and meaning-based search from another local tool, connect it over MCP. Results include the source file and line numbers.
+- In the optional Codex edition, you can also search local conversations for a selected project. This is off by default.
 
-The **General edition** is the default. Neither edition exposes a workspace through MCP until you explicitly share it. Shared workspaces are read-only unless you grant write access separately. Project memory is an additional opt-in in the **Codex edition**. See [editions and access controls](apps/open-knowledge/docs/editions.md).
+The **General edition** is the default. Share folders one at a time in **MCP Settings**. A shared folder is read-only until you explicitly enable editing. See [editions and access controls](apps/open-knowledge/docs/editions.md).
 
-## Run from source
+## Build from source
 
 You need Bun 1.4.0 and Node.js 22.17 or newer. On macOS, install the Xcode Command Line Tools for native build dependencies. From the repository root:
 

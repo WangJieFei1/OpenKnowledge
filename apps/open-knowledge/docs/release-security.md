@@ -22,7 +22,7 @@ validation and navigation restrictions remain required independent controls.
 
 Ordinary `build:dir` and `build:mac` output receives a complete ad-hoc signature for local integrity
 testing, but it has no verified publisher identity or Hardened Runtime. Public macOS artifacts must use
-`build:mac:release`, which fails unless both of these environment variables exist:
+`build:mac:release`, which checks the local signing certificate and Keychain profile before building. Set:
 
 - `OPEN_KNOWLEDGE_MAC_SIGN_IDENTITY`: an installed Developer ID Application identity.
 - `OPEN_KNOWLEDGE_MAC_NOTARY_PROFILE`: a `notarytool` keychain profile name.
@@ -36,14 +36,26 @@ export OPEN_KNOWLEDGE_MAC_NOTARY_PROFILE='open-knowledge-notary'
 bun run build:mac:release
 ```
 
-The release uses Hardened Runtime and a minimal JIT entitlement. Forge signs after fuses are applied,
-then submits the result for notarization. Verify the final app and ticket before publishing:
+The release uses Hardened Runtime and a minimal JIT entitlement. Forge signs and notarizes the app
+after applying fuses. The release script then signs and notarizes the disk image, attaches its
+Apple ticket, and verifies it before printing the file path. Each run writes to a fresh directory
+under `out/`. Use a matching Bun and Node.js architecture; verify Apple Silicon and Intel builds
+separately. Do not label a native build universal.
+
+Test the downloaded image on a separate Mac with default Gatekeeper settings. Drag the app into
+Applications, open it without Terminal, select a test folder and edit a note. Check both a normal
+folder and the Files & Folders access flow for a protected location. You can also verify the installed app:
 
 ```bash
 codesign --verify --deep --strict --verbose=2 '/path/to/Open Knowledge.app'
 spctl --assess --type execute --verbose=2 '/path/to/Open Knowledge.app'
 xcrun stapler validate '/path/to/Open Knowledge.app'
 ```
+
+## Signed Windows release
+
+See the [Windows release checklist](windows.md#package-and-test-on-windows) for Authenticode
+signing, an installer signature check, and a first-launch test with a standard user.
 
 ## Security boundary
 

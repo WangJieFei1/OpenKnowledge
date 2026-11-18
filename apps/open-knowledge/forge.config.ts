@@ -8,6 +8,7 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 import { MakerAppImage } from '@reforged/maker-appimage'
 import { packagedElectronFuses, resolveMacReleaseSecurity } from './electron/build-security'
+import { resolveWindowsReleaseSigning } from './electron/windows-release-security'
 import { resolveAppEdition } from './src/lib/app-edition'
 import { assertEditionManifest } from './scripts/edition-build'
 
@@ -20,6 +21,16 @@ const macReleaseSecurity = resolveMacReleaseSecurity(
 	process.env,
 	path.join(applicationRoot, 'resources', 'entitlements.mac.plist')
 )
+
+const windowsSign = resolveWindowsReleaseSigning(process.platform, process.env)
+type PackagerWindowsSign = Exclude<
+	NonNullable<NonNullable<ForgeConfig['packagerConfig']>['windowsSign']>,
+	true
+>
+const packagerWindowsSign: PackagerWindowsSign | undefined = windowsSign && {
+	signWithParams: windowsSign.signWithParams,
+	hashes: ['sha256'] as PackagerWindowsSign['hashes']
+}
 
 function ignoreUnpackagedFiles(filePath: string): boolean {
 	const normalizedPath = filePath.replaceAll('\\', '/')
@@ -36,9 +47,11 @@ function ignoreUnpackagedFiles(filePath: string): boolean {
 }
 
 const config: ForgeConfig = {
-	// Preserve the existing CI's out/make glob when no edition was explicitly selected.
-	// The named edition scripts always set the environment and use isolated output directories.
-	outDir: process.env.OPEN_KNOWLEDGE_EDITION === undefined ? 'out' : `out/${edition.id}`,
+	// A release run must not pick up a disk image left behind by an earlier build.
+	outDir:
+		(macReleaseSecurity.osxNotarize && process.env.OPEN_KNOWLEDGE_MAC_RELEASE_OUT) ||
+		(windowsSign && process.env.OPEN_KNOWLEDGE_WINDOWS_RELEASE_OUT) ||
+		(process.env.OPEN_KNOWLEDGE_EDITION === undefined ? 'out' : `out/${edition.id}`),
 	hooks: {
 		async readPackageJson(_config, packageJSON) {
 			return {
@@ -85,6 +98,7 @@ const config: ForgeConfig = {
 		appCategoryType: 'public.app-category.productivity',
 		appCopyright: 'Copyright 2026 OpenKnowledgeApp',
 		...macReleaseSecurity,
+		...(packagerWindowsSign ? { windowsSign: packagerWindowsSign } : {}),
 		extendInfo: {
 			NSDesktopFolderUsageDescription:
 				'Open Knowledge needs access to Desktop folders you select as workspaces.',
@@ -113,7 +127,8 @@ const config: ForgeConfig = {
 		new MakerSquirrel(
 			{
 				name: edition.id === 'codex' ? 'OpenKnowledgeCodex' : 'OpenKnowledgeGeneral',
-				setupIcon: 'src/lib/assets/app-icon.ico'
+				setupIcon: 'src/lib/assets/app-icon.ico',
+				...(windowsSign ? { windowsSign } : {})
 			},
 			['win32']
 		)

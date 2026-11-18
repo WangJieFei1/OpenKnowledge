@@ -20,6 +20,9 @@ def main():
         for baseline in ("pasted", "fullMcp"):
             change = (counts["bounded"] / counts[baseline] - 1) * 100
             print(f"  bounded vs {baseline}: {change:+.1f}%")
+        for baseline in ("pasted", "bounded"):
+            change = (counts["batched"] / counts[baseline] - 1) * 100
+            print(f"  batched vs {baseline}: {change:+.1f}%")
 
 
 if __name__ == "__main__":

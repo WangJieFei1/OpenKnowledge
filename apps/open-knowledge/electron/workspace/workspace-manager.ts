@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { lstat } from 'node:fs/promises'
+import { lstat, opendir } from 'node:fs/promises'
 import path from 'node:path'
 import { app, BrowserWindow, dialog, safeStorage, shell } from 'electron'
 import type {
@@ -912,6 +912,10 @@ export class WorkspaceManager {
 		try {
 			rootPath = await canonicalizeRoot(candidate)
 			rootIdentity = await filesystemIdentity(rootPath)
+			if (rootPath !== path.parse(rootPath).root) {
+				const directory = await opendir(rootPath)
+				await directory.close()
+			}
 		} catch (error) {
 			throw new WorkspaceRegistrationError('folder', error)
 		}

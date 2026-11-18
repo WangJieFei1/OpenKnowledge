@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, mock, spyOn, test } from 'bun:test'
 import { createHash } from 'node:crypto'
 import {
+	chmod,
 	lstat,
 	mkdtemp,
 	readFile,
@@ -163,6 +164,32 @@ describe('workspace folder selection', () => {
 			await manager.close()
 		}
 	})
+
+	test.skipIf(process.platform === 'win32' || process.getuid?.() === 0)(
+		'reports a folder that can be resolved but cannot be listed',
+		async () => {
+			const root = await mkdtemp(path.join(os.tmpdir(), 'open-knowledge-unreadable-'))
+			temporaryDirectories.push(root)
+			selectedFolder = root
+			const manager = new WorkspaceManager()
+			await manager.initialize()
+			try {
+				await chmod(root, 0o300)
+				expect(await browseSelection(manager)).toMatchObject({
+					status: 'failed',
+					error: { code: 'folder-permission-denied' }
+				})
+				expect(
+					manager
+						.selectorSnapshot()
+						.recentWorkspaces.some((entry) => entry.kind === 'local' && entry.rootPath === root)
+				).toBe(false)
+			} finally {
+				await chmod(root, 0o700)
+				await manager.close()
+			}
+		}
+	)
 
 	test('reports when the selected path is not a folder', async () => {
 		const directory = await mkdtemp(path.join(os.tmpdir(), 'open-knowledge-not-folder-'))

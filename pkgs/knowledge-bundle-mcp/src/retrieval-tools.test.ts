@@ -174,6 +174,107 @@ type RetrievalPayload = RetrievalItem & {
 	}
 }
 
+test('MCP batches original citation ranges, sharing a single byte budget', async () => {
+	const first = makeFile('/one.md', '# First\r\n多语言 🧪 first evidence\r\nOutside\r\n')
+	const relocated = makeFile('/new/two.md', '# Second\nQuoted "evidence" \\ field.\n', {
+		id: 'relocated-two'
+	})
+	const context = fixture([first, relocated])
+	const connection = await connectedClient([context.grant])
+	try {
+		const result = await connection.client.callTool({
+			name: 'knowledge_get_excerpts',
+			arguments: {
+				workspace_ref: workspaceRef,
+				max_bytes: 2048,
+				ranges: [
+					{ path: first.path, start_line: 2, end_line: 2 },
+					{
+						path: '/old/two.md',
+						id: relocated.id,
+						expected_content_hash: relocated.contentHash,
+						start_line: 1,
+						end_line: 2
+					}
+				]
+			}
+		})
+		expect(result.isError).toBeUndefined()
+		expect(result.structuredContent).toBeUndefined()
+		expect(result.content).toHaveLength(1)
+		const block = result.content[0]!
+		if (block.type !== 'text') throw new Error('Expected text')
+		const output = JSON.parse(block.text)
+		expect(output).toEqual({
+			workspace_ref: workspaceRef,
+			source_content_is_untrusted: true,
+			serialized_bytes: Buffer.byteLength(block.text),
+			excerpts: [
+				{
+					path: first.path,
+					start_line: 2,
+					end_line: 2,
+					content_hash: first.contentHash,
+					text: '多语言 🧪 first evidence\r\n'
+				},
+				{
+					path: relocated.path,
+					start_line: 1,
+					end_line: 2,
+					content_hash: relocated.contentHash,
+					text: relocated.content
+				}
+			]
+		})
+		expect(output.serialized_bytes).toBeLessThanOrEqual(2048)
+		expect(context.calls.reads).toHaveLength(2)
+	} finally {
+		await connection.close()
+	}
+})
+
+test('MCP batch fails atomically on stale or missing sources, invalid ranges, or budget overflow', async () => {
+	const first = makeFile('/one.md', 'Evidence only returned from successful batch.\n')
+	const long = makeFile('/long.md', '🙂 "escaped" \\ with edge characters\n'.repeat(150))
+	const secret = makeFile('/.open-knowledge/private.md', 'Internal source must stay hidden.', {
+		id: 'moved-protected'
+	})
+	const context = fixture([first, long, secret])
+	const connection = await connectedClient([context.grant])
+	const firstRange = { path: first.path, start_line: 1, end_line: 1 }
+	const longRange = { path: long.path, start_line: 1, end_line: 1 }
+	try {
+		for (const args of [
+			{ ranges: [firstRange, { ...firstRange, expected_content_hash: hash('old') }] },
+			{ ranges: [firstRange, { ...firstRange, path: '/missing.md' }] },
+			{ ranges: [firstRange, { ...firstRange, path: '/old.md', id: secret.id }] },
+			{ ranges: [firstRange, { ...firstRange, end_line: 2 }] },
+			{ ranges: [firstRange, { ...firstRange, start_line: 2, end_line: 1 }] },
+			{ ranges: [firstRange, { ...longRange, end_line: 201 }] },
+			{ ranges: Array.from({ length: 9 }, () => firstRange) },
+			{ ranges: [], workspace_ref: workspaceRef },
+			{ ranges: [firstRange], workspace_ref: 'not_authorized' },
+			{
+				ranges: [{ ...longRange, end_line: 30 }, { ...longRange, start_line: 31, end_line: 60 }],
+				max_bytes: 2048
+			},
+			{ ranges: [firstRange, { ...longRange, end_line: 100 }], max_bytes: 2048 }
+		]) {
+			const response = await connection.client.callTool({
+				name: 'knowledge_get_excerpts',
+				arguments: args
+			})
+			expect(response.isError).toBe(true)
+			const responseText = JSON.stringify(response)
+			expect(responseText).not.toContain(first.content.trim())
+			expect(responseText).not.toContain(secret.content)
+			expect(responseText).not.toContain(secret.path)
+		}
+	} finally {
+		await connection.close()
+	}
+})
+
 test('MCP hybrid recall ranks only current authorized passages in the requested directory', async () => {
 	const context = fixture([
 		makeFile('/allowed/entry.md', 'Collect the keys from the lockbox after 3 pm.'),

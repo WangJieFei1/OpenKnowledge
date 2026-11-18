@@ -48,7 +48,7 @@ export const pageTranslation = translation({
 			'The system folder picker could not open. Restart Open Knowledge and try again.',
 		folderNotFound: 'That folder no longer exists. Restore it or choose another folder.',
 		folderPermissionDenied:
-			'Open Knowledge does not have permission to read that folder. Grant access in system settings or choose another folder.',
+			'This folder is not readable. On a Mac, check System Settings → Privacy & Security → Files & Folders, then choose the folder again. You can also choose another folder.',
 		folderNotDirectory: 'The selected path is not a folder. Choose a folder instead.',
 		folderRootNotSupported:
 			'An entire filesystem cannot be a workspace. Choose a folder inside the drive instead.',
@@ -99,7 +99,7 @@ export const pageTranslation = translation({
 		folderPickerUnavailable: '无法打开系统文件夹选择器。请重新启动 Open Knowledge 后再试。',
 		folderNotFound: '所选文件夹已不存在。请恢复该文件夹，或选择其他文件夹。',
 		folderPermissionDenied:
-			'Open Knowledge 没有读取该文件夹的权限。请在系统设置中授予访问权限，或选择其他文件夹。',
+			'无法读取该文件夹。在 Mac 上，请到“系统设置 → 隐私与安全性 → 文件与文件夹”检查权限，再次选择该文件夹；也可以选择其他文件夹。',
 		folderNotDirectory: '所选路径不是文件夹。请选择一个文件夹。',
 		folderRootNotSupported: '不能将整个文件系统作为工作区。请选择磁盘内的文件夹。',
 		folderUnavailable: '所选文件夹当前不可用。请重新连接其磁盘或网络位置，然后重试。',

@@ -110,7 +110,7 @@ jobs:
             arch: arm64
             maker: dmg
             artifact_name: open-knowledge-macos-arm64-dmg
-            installer_glob: apps/open-knowledge/out/make/*.dmg
+            installer_glob: apps/open-knowledge/out/make/dmg/arm64/*.dmg
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

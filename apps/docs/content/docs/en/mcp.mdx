@@ -1,9 +1,9 @@
 ---
-title: AI connections
+title: Connect other tools
 description: Workspace access for local tools that support MCP.
 ---
 
-Open Knowledge can connect local AI tools through the Model Context Protocol (MCP). Nothing is shared until a workspace is included.
+Open Knowledge connects to local tools that support the Model Context Protocol (MCP). No folders are shared until you include them.
 
 ## Workspace access
 
@@ -11,7 +11,7 @@ Open Knowledge can connect local AI tools through the Model Context Protocol (MC
 | --- | --- |
 | Not included | The workspace is not available. |
 | Include | Browse workspace files. Read source Markdown and converted Markdown from supported local files; unsupported files expose metadata only. |
-| Edit | Update existing writable Markdown files as well as read available documents. Converted and other non-Markdown files cannot be changed. |
+| Edit | Also create folders and Markdown files and update existing writable Markdown. Converted and other non-Markdown files stay read-only. |
 
 Access is set separately for every workspace in MCP Settings. Edit can only be enabled after Include. Removing Include also removes Edit.
 
@@ -81,13 +81,13 @@ Included workspaces can be listed with a `document_access` value for every file:
 
 `knowledge_search` uses WASM ripgrep to find bounded matching lines in native Markdown source before documents are opened. It supports regular expressions or literal text, case controls, whole-word matching, a directory scope, and optional exclusion globs. Converted and unsupported source bytes are not searched. Search runs directly against the included workspace without creating a persistent project index, and it excludes internal Open Knowledge data, Git data, dependencies, symbolic links, and ignored files.
 
-`knowledge_get_excerpt` reads a bounded original line range. `knowledge_recall` searches bounded native-Markdown passages by keywords, local meaning, or both. Both retain source provenance and disclose truncation and coverage limits.
+`knowledge_get_excerpt` reads a bounded original line range. `knowledge_get_excerpts` reads up to eight known Markdown ranges from one included workspace in a single call, returning each path, line range, and source hash. `knowledge_recall` searches bounded native-Markdown passages by keywords, local meaning, or both. Both retain source provenance and disclose truncation and coverage limits.
 
 `knowledge_get_document` returns Markdown as tool text and source-file details as structured metadata. `representation` is `source_markdown` or `converted_markdown`, while `markdown_byte_length` is the UTF-8 size of the returned Markdown. `byte_length` and `content_hash` always describe the original source bytes; `content_hash` is their lowercase SHA-256 hash, not a hash of converted Markdown.
 
 When Edit is enabled, existing writable `.md` files can be updated. Targeted updates use exact, uniquely matched text anchors plus revision and source content-hash checks; the full document is not sent back for each patch. Both targeted patches and full replacements remain Markdown-only.
 
-Connected tools cannot create, delete, rename, or move workspace files.
+With Edit enabled, a connected tool can create Markdown files and folders inside an existing folder. Connected tools cannot delete, rename, or move files.
 
 MCP accepts only canonical project-relative paths. Absolute paths, parent traversal, symbolic or hard-linked documents, nested filesystem devices, and Windows device or alternate-stream paths are rejected before content access. Replacing a workspace folder requires explicit reselection and revokes its previous MCP grant.
 
