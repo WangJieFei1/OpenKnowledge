@@ -1,9 +1,9 @@
 {
 	"name": "open-knowledge",
 	"private": true,
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"productName": "Open Knowledge",
-	"description": "Local Markdown workspace with on-device semantic search for research and projects",
+	"description": "Open-source desktop workspace for local knowledge and project memory",
 	"author": "OpenKnowledgeApp",
 	"license": "MIT",
 	"type": "module",

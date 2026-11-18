@@ -569,7 +569,7 @@ describe('knowledge bundle MCP server', () => {
 			expect(instructions).not.toContain('Codex')
 			expect(instructions).not.toContain('knowledge_search_memory')
 			expect(instructions).toContain('research_brief, quant_research_review, consulting_handoff')
-			expect(connection.client.getServerVersion()?.version).toBe('0.0.3')
+			expect(connection.client.getServerVersion()?.version).toBe('0.0.4')
 			for (const [name, subject] of [
 				['research_brief', 'question'],
 				['quant_research_review', 'hypothesis'],

@@ -2,10 +2,10 @@
 
 Open Knowledge exposes explicitly included local workspaces to trusted AI tools through one application-wide Model Context Protocol (MCP) connection. Access is disabled by default and read-only unless editing is enabled for a workspace.
 
-Release 0.0.3 provides **Open Knowledge General** and **Open Knowledge Codex**. Both support standard
+**Open Knowledge General** and **Open Knowledge Codex** both support standard
 MCP clients, local multilingual embeddings, hybrid recall and research prompts. General has no Codex
 history reader or memory settings; Codex adds optional, default-off history and a Codex TOML copy tab.
-See [editions, builds and migration / 版本、构建与迁移](editions.md). Each edition has independent
+See [editions, builds and migration](editions.md). Each edition has independent
 settings, grants and connection credentials; neither automatically inherits the legacy app's access.
 
 ## Manage Workspace Access
