@@ -10,6 +10,21 @@ I use Open Knowledge in my day-to-day data analysis. It is where I keep dataset 
 
 When I need to revisit a number, I can search for the passage that explains it instead of opening a dozen files. For structured notes, [metadata filters](apps/open-knowledge/docs/retrieval-quality.md) can narrow results by entity, reporting period, or metric definition. Open Knowledge keeps the context around the analysis; I still run queries and calculations in my usual tools.
 
+## Example: explain a change in checkout conversion
+
+Here is a synthetic example of how I connect four Markdown notes in one workspace:
+
+| Note | What it records |
+| --- | --- |
+| [Dataset notes](examples/checkout-conversion/workspace/dataset.md) | The source table, what one session represents, the UTC time field, and which traffic to exclude. |
+| [SQL](examples/checkout-conversion/workspace/query.md) | How to count paid and eligible sessions by week. The query links back to the dataset and the metric definition. |
+| [Metric definition](examples/checkout-conversion/workspace/metric.md) | **Checkout conversion = paid eligible checkout sessions ÷ eligible checkout sessions.** Keep the denominator, exclusions, and reporting window explicit. |
+| [Analysis conclusion](examples/checkout-conversion/workspace/conclusion.md) | **420 / 10,000 (4.2%)** versus **350 / 10,000 (3.5%)** the previous week: **up 0.7 percentage points**. The note links back to the SQL and the definition. The increase does not establish why conversion changed. |
+
+I run the SQL in my usual analytics environment and save the result in the conclusion note. Later, when I ask “Did conversion improve, and are the two weeks comparable?”, I can send the relevant line ranges from those four notes through MCP instead of pasting four complete notes. The cited lines show the inputs, the denominator, and the result. Open Knowledge retrieves the evidence; it does not execute the SQL or infer causality.
+
+**Does it use fewer tokens?** For the same question and four notes, pasting the full files used **2,134 tokens**; asking MCP for four verified excerpts used **1,509** (**29.3% fewer**), including the tool calls and their returned JSON. When the notes already contained only the needed evidence, pasting was cheaper: **795 tokens** versus **1,501** over MCP. These are local `o200k_base` counts for this example, not a prediction of total chat usage. [Reproduce the benchmark](examples/checkout-conversion/README.md#reproduce-the-count).
+
 ## Find the evidence, not just the filename
 
 - **Manage a knowledge base without a proprietary format.** Edit notes in rich-text or Markdown source mode, search across a workspace, and open supported non-Markdown documents in a read-only view.
