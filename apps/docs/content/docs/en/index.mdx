@@ -1,36 +1,29 @@
 ---
 title: Open Knowledge Guide
-description: A guide to writing and organizing Markdown stored as plain files.
+description: Open a Markdown folder, edit notes, and choose what a connected agent can read.
 ---
 
-Open Knowledge is a desktop editor for Markdown knowledge bases. A folder of `.md` files can be opened directly. Its documents can be edited in rich text or source view, while the same files remain available to other Markdown tools.
+Click **Open folder** and choose a directory that contains Markdown files. Open a note to edit it in rich text or switch to Markdown source. Both views save to the same file, so you can check the changes in Git or open it in another editor.
 
-## Markdown first
+A workspace is just that folder. You don't need to add YAML properties or convert your notes. If the folder already uses the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md), the editor also recognizes its standard properties and supporting documents.
 
-Files stay in the selected folder as plain Markdown. YAML properties at the top of a file, often called frontmatter, are optional. Git, sync services, and other editors can continue to work with the same files.
+## Share a folder with an agent
 
-## Open Knowledge Format compatibility
+Opening a folder doesn't share it. In **MCP Settings**, set the workspace to **Read** if you want a connected agent to look things up. Leave other projects **Off**. The [connection guide](/docs/mcp) explains how to connect a client and revoke access.
 
-The [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md) is supported, but it is not required. Existing bundles open without conversion. Common properties and supporting documents receive additional editor support.
-
-Regular Markdown folders remain supported when they use custom metadata or no frontmatter at all.
-
-## In this guide
+## Using the editor
 
 <Cards>
   <Card title="Workspaces" href="/docs/workspaces">
-    Folder-based workspaces, file access states, and read-only previews.
+    Open a folder and preview documents you can't edit.
   </Card>
   <Card title="Writing" href="/docs/writing">
-    Rich-text and Markdown source editing, with automatic saving.
+    Write in rich text or edit the Markdown directly.
   </Card>
   <Card title="Markdown and properties" href="/docs/markdown">
-    Optional YAML properties and Open Knowledge Format support.
+    Work with YAML properties and Open Knowledge Format bundles.
   </Card>
   <Card title="Settings" href="/docs/settings">
-    Appearance, writing controls, language, and sidebar options.
-  </Card>
-  <Card title="Connect other tools" href="/docs/mcp">
-    How to connect local tools and choose which folders to share.
+    Change the language, editor appearance, or sidebar.
   </Card>
 </Cards>

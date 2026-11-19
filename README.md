@@ -1,45 +1,32 @@
 # Open Knowledge
 
-Open Knowledge is a desktop app for writing and searching Markdown files. Open a folder to get started. Files stay where they are, so you can keep using your editor, Git repository, or backup.
+Open Knowledge is a desktop app for keeping project notes in Markdown and sharing selected folders with an AI agent. I use it for data analysis: the SQL, the definition of a metric, and the note explaining last week's result all live in the same folder.
 
-I use it for everyday data analysis: I keep dataset notes, SQL, metric definitions, and results together so I can check where a number came from.
+Open a folder to write or search, with no account or import step. Your files stay where they are. Opening a folder in the editor does **not** share it with an agent.
 
-## Getting started
+![The weekly checkout report in Open Knowledge, with both weeks and links to the metric, SQL, and dataset notes.](docs/images/checkout-conversion.png)
 
-Open Knowledge currently ships as source code; there are no prebuilt installers yet. See [Build from source](#build-from-source), [macOS first launch](apps/open-knowledge/docs/macos.md#first-launch-and-folder-access), or [Windows setup](apps/open-knowledge/docs/windows.md).
+## Try it
 
-In the app, click **Open folder** and pick a Markdown folder. Writing and search work without an account or an MCP connection. To try the checkout example, open `examples/checkout-conversion/workspace`.
+The [latest release](https://github.com/WangJieFei1/OpenKnowledge/releases/latest) is source only. [Build the app](#build-from-source), click **Open folder**, and select [the checkout example](examples/checkout-conversion/workspace).
 
-## Example: explain a change in checkout conversion
+Start with the [weekly result](examples/checkout-conversion/workspace/conclusion.md): checkout conversion rose from 3.5% to 4.2%. Was that more paid sessions or fewer eligible sessions? The denominator stayed at 10,000; paid sessions went from 350 to 420. Follow the [metric definition](examples/checkout-conversion/workspace/metric.md) to see what counts as paid, then check the [SQL](examples/checkout-conversion/workspace/query.md) against the [dataset notes](examples/checkout-conversion/workspace/dataset.md). To get the same numbers yourself, [run the example in DuckDB](examples/checkout-conversion/README.md#reproduce-the-sql-result). The data is synthetic; the desktop app doesn't run SQL.
 
-Here is a synthetic example of how I connect four Markdown notes in one workspace:
+## Give an agent access to a project
 
-| Note | What it records |
-| --- | --- |
-| [Dataset notes](examples/checkout-conversion/workspace/dataset.md) | The source table, what one session represents, the UTC time field, and which traffic to exclude. |
-| [SQL](examples/checkout-conversion/workspace/query.md) | How to count paid and eligible sessions by week. The query links back to the dataset and the metric definition. |
-| [Metric definition](examples/checkout-conversion/workspace/metric.md) | **Checkout conversion = paid eligible checkout sessions ÷ eligible checkout sessions.** Keep the denominator, exclusions, and reporting window explicit. |
-| [Analysis conclusion](examples/checkout-conversion/workspace/conclusion.md) | **420 / 10,000 (4.2%)** versus **350 / 10,000 (3.5%)** the previous week: **up 0.7 percentage points**. The note links back to the SQL and the definition. The increase does not establish why conversion changed. |
+In **MCP Settings**, set the example workspace to **Read** and leave your other folders **Off**. Choose **Reveal connection**, copy the configuration into a client that supports the Model Context Protocol (MCP), and keep Open Knowledge running. Try asking: “Which sessions did we exclude from checkout conversion? Show me the lines in the metric note.”
 
-I run the SQL in my usual analytics environment and save the result in the conclusion note. Later, when I ask “Did conversion improve, and are the two weeks comparable?”, I can send the relevant line ranges from those four notes through MCP instead of pasting four complete notes. The cited lines show the inputs, the denominator, and the result. The app retrieves the notes; the SQL runs in the analytics environment.
+**Read & edit** also lets a connected client create and update Markdown. Switching a workspace back to **Off** closes active sessions. After reconnecting, the client no longer has access to that folder through Open Knowledge. This doesn't erase text the client has already read. All clients using the same connection see the same shared folders. [Connection and permissions](apps/open-knowledge/docs/mcp.md)
 
-**Token count for this example:** One MCP call for the four cited passages used **1,169 tokens**.
-Four separate excerpt calls used 1,509, and pasting the full notes used 2,134. If the notes
-already contain only the needed passages, pasting is cheaper (795 versus 1,161). These are local
-`o200k_base` counts of the question, tool arguments, and results—not whole-chat usage.
-[Reproduce the benchmark](examples/checkout-conversion/README.md#reproduce-the-count).
+The default **General** edition doesn't read chat history. The optional **Codex** edition can also search local Codex conversations for a shared project, using the session's working directory to identify the project. This is off by default. [Edition differences](apps/open-knowledge/docs/editions.md)
 
-## Editing and search
+## How much text goes to the agent?
 
-- Edit Markdown as rich text or source. Open supported documents in a read-only preview.
-- Search across a folder in the app. For keyword and meaning-based search from another local tool, connect it over MCP. Results include the source file and line numbers.
-- In the optional Codex edition, you can also search local conversations for a selected project. This is off by default.
-
-The **General edition** is the default. Share folders one at a time in **MCP Settings**. A shared folder is read-only until you explicitly enable editing. See [editions and access controls](apps/open-knowledge/docs/editions.md).
+For the checkout question in the [benchmark](examples/checkout-conversion/README.md#reproduce-the-count), one call returning four known passages used 1,169 tokens. Pasting all four notes used 2,134. For notes already trimmed to those passages, pasting was cheaper: 795 tokens versus 1,161 through the tool. These are local counts of the question, arguments and results, not the cost of an entire chat.
 
 ## Build from source
 
-You need Bun 1.4.0 and Node.js 22.17 or newer. On macOS, install the Xcode Command Line Tools for native build dependencies. From the repository root:
+Use Bun 1.4.0 and Node.js 22.17 or later. On macOS, install the Xcode Command Line Tools. From the repository root:
 
 ```sh
 bun install --frozen-lockfile
@@ -47,14 +34,6 @@ cd apps/open-knowledge
 bun run dev
 ```
 
-Open an existing Markdown folder to get started. The first build downloads the semantic model; subsequent inference runs locally without an embedding API. This release includes source code, not prebuilt installers.
+The first run downloads the search model. After that, search by meaning runs on your computer. A connected agent can still send the text it reads to its own provider.
 
-Run `bun test apps/open-knowledge pkgs` for tests and `bun run check` for type checks from the repository root.
-
-## Documentation
-
-[Development and packaging](apps/open-knowledge/docs/development.md) · [Workspace format](apps/open-knowledge/docs/open-knowledge-format.md) · [MCP setup](apps/open-knowledge/docs/mcp.md) · [Retrieval behavior](apps/open-knowledge/docs/retrieval-quality.md)
-
-## License
-
-Open Knowledge is available under the [MIT License](LICENSE).
+[macOS folder access](apps/open-knowledge/docs/macos.md#first-launch-and-folder-access) · [Windows setup](apps/open-knowledge/docs/windows.md) · [Development and tests](apps/open-knowledge/docs/development.md) · [Workspace format](apps/open-knowledge/docs/open-knowledge-format.md) · [MIT license](LICENSE)

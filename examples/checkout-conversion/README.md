@@ -1,6 +1,10 @@
-# Checkout conversion: token-count example
+# Weekly checkout conversion
 
-Open the [workspace](workspace) in Open Knowledge to follow four linked Markdown notes from the [dataset contract](workspace/dataset.md), through the [metric](workspace/metric.md) and [SQL](workspace/query.md), to the [finding](workspace/conclusion.md). These files and counts are synthetic. The benchmark reads the notes; it does not run the SQL or submit model requests.
+Why did checkout conversion go from 3.5% to 4.2%? There were 70 more paid sessions in the second week and the same number of eligible sessions. Both weeks use the same metric. These figures alone don't tell us why more sessions paid.
+
+Open the [workspace](workspace) in Open Knowledge and start with the [result](workspace/conclusion.md). The [definition](workspace/metric.md) says which sessions qualify, the [dataset notes](workspace/dataset.md) describe the input, and the [query](workspace/query.md) shows the calculation. The example uses synthetic events.
+
+There are two independent checks below: [rerun the SQL](#reproduce-the-sql-result) to verify the rates, or count how many tokens it takes to send the supporting passages to an agent. The token benchmark does not execute SQL or call a model.
 
 ## Reproduce the count
 
@@ -25,7 +29,6 @@ Each variant counts the same question once. The benchmark then adds one of the f
 - **Pasted:** the four complete Markdown files, with path labels.
 - **Full MCP:** four real `knowledge_get_document` calls. This counts each tool name and argument object, the returned Markdown, and its structured metadata.
 - **Bounded:** four real `knowledge_get_excerpt` calls, including each tool name and argument object and all of the compact JSON returned by the server. Each response retains the source path, line range and content hash. The script checks that the expected text is present verbatim and was not truncated.
-
 - **One batch:** one `knowledge_get_excerpts` call for the same ranges. The script counts the
   arguments and all of the returned JSON, and checks every path, line range, hash, and passage.
 

@@ -9,11 +9,11 @@ Open Knowledge connects to local tools that support the Model Context Protocol (
 
 | Setting | What the connected tool can do |
 | --- | --- |
-| Not included | The workspace is not available. |
-| Include | Browse workspace files. Read source Markdown and converted Markdown from supported local files; unsupported files expose metadata only. |
-| Edit | Also create folders and Markdown files and update existing writable Markdown. Converted and other non-Markdown files stay read-only. |
+| Off | No access to this workspace. |
+| Read | Browse files, read Markdown, and preview supported documents. Other file types expose metadata only. |
+| Read & edit | Also create folders and Markdown files and update writable Markdown. Non-Markdown files stay read-only. |
 
-Access is set separately for every workspace in MCP Settings. Edit can only be enabled after Include. Removing Include also removes Edit.
+Choose a setting for each folder in **MCP Settings**. Clients using the same connection have the same access. Changing a setting closes active sessions. When a client reconnects, it can no longer read folders set to **Off**, but it still has any text it read earlier.
 
 ## Connection methods
 
@@ -53,7 +53,7 @@ If semantic inference is unavailable, fails, or times out, recall falls back to 
 
 ## Codex session memory
 
-Codex session memory is a separate setting and is off by default. For a selected workspace, it can read only local Codex sessions whose recorded working directory is that workspace or a descendant. Access is read-only and includes only user and assistant message text. Tool calls, tool results, and hidden reasoning are not exposed.
+The General edition does not read chat history. In the Codex edition, session memory is a separate setting and is off by default. For a selected workspace, it can read only local Codex sessions whose recorded working directory is that workspace or a descendant. Access is read-only and includes only user and assistant message text. Tool calls, tool results, and hidden reasoning are not exposed.
 
 The optional tools are:
 
@@ -85,9 +85,9 @@ Included workspaces can be listed with a `document_access` value for every file:
 
 `knowledge_get_document` returns Markdown as tool text and source-file details as structured metadata. `representation` is `source_markdown` or `converted_markdown`, while `markdown_byte_length` is the UTF-8 size of the returned Markdown. `byte_length` and `content_hash` always describe the original source bytes; `content_hash` is their lowercase SHA-256 hash, not a hash of converted Markdown.
 
-When Edit is enabled, existing writable `.md` files can be updated. Targeted updates use exact, uniquely matched text anchors plus revision and source content-hash checks; the full document is not sent back for each patch. Both targeted patches and full replacements remain Markdown-only.
+With **Read & edit**, existing writable `.md` files can be updated. Targeted updates use exact, uniquely matched text anchors plus revision and source content-hash checks; the full document is not sent back for each patch. Both targeted patches and full replacements remain Markdown-only.
 
-With Edit enabled, a connected tool can create Markdown files and folders inside an existing folder. Connected tools cannot delete, rename, or move files.
+With **Read & edit**, a connected tool can create Markdown files and folders inside an existing folder. Connected tools cannot delete, rename, or move files.
 
 MCP accepts only canonical project-relative paths. Absolute paths, parent traversal, symbolic or hard-linked documents, nested filesystem devices, and Windows device or alternate-stream paths are rejected before content access. Replacing a workspace folder requires explicit reselection and revokes its previous MCP grant.
 

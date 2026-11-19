@@ -10,9 +10,15 @@ settings, grants and connection credentials; neither automatically inherits the 
 
 ## Manage Workspace Access
 
-Choose **MCP > MCP Settings...** in the application menubar. Each registered workspace has separate **Include** and **Edit** toggles; editing requires inclusion. With one registered workspace, these controls appear directly.
+Open **MCP Settings…** from the **MCP** menu. In **Workspace access**, choose a setting for each folder:
 
-Workspace **Settings** provides the same toggles and a shortcut to the MCP window. Permission changes close active sessions but preserve the shared credential. Use **Regenerate credential** to rotate it. Disabling inclusion also clears edit permission.
+| Setting | Access through this connection |
+| --- | --- |
+| Off | The client cannot browse or read this workspace. |
+| Read | The client can browse files, read Markdown, and preview supported documents. |
+| Read & edit | The client can also create folders and Markdown files and update writable Markdown. |
+
+Changing access closes active sessions. After reconnecting, clients see only the workspaces still shared. Switching a folder off doesn't remove copies a client already has. Access applies to every client using this connection; use **Regenerate credential** if you need a new shared credential.
 
 ## Connect A Client
 
